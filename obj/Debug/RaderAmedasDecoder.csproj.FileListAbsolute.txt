@@ -1,0 +1,11 @@
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\bin\Debug\RaderAmedasDecoder.exe
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\bin\Debug\RaderAmedasDecoder.pdb
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.csprojResolveAssemblyReference.cache
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.MainForm.resources
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.Properties.Resources.resources
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.DateSelecterControl.resources
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.csproj.GenerateResource.Cache
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.exe
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.pdb
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\obj\Debug\RaderAmedasDecoder.SettingForm.resources
+c:\users\miyachi\documents\visual studio 2012\Projects\RaderAmedasDecoder\RaderAmedasDecoder\bin\Debug\RaderAmedasDecoder.exe.config
