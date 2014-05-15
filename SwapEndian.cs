@@ -7,7 +7,7 @@ namespace RaderAmedasDecoder
 {
     class SwapEndian
     {
-         public static int swap_endianInt16(byte[] byteArray, int startIndex)
+         public static short swap_endianInt16(byte[] byteArray, int startIndex)
         {
             byte[] swapByteArray = new byte[2];
             Array.Copy(byteArray, startIndex, swapByteArray, 0, 2);

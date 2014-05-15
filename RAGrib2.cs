@@ -6,7 +6,7 @@ using System.IO;
 
 namespace RaderAmedasDecoder
 {
-    class RAGrib2
+    class RAGrib2 
     {
         public DateTime dataDateTime;
                 
@@ -16,8 +16,10 @@ namespace RaderAmedasDecoder
         public double latitudeOfLastGridPointInDegrees, longitudeOfLastGridPointInDegrees;
         public double iDirectionIncrementInDegrees, jDirectionIncrementInDegrees;
         public int scanningMode;
+
+        public float[] rainData;
         
-        public RAGrib2(FileStream fs)
+        public RAGrib2(FileStream fs) 
         {
             int sectionLength, sectionNumber;
 
@@ -174,19 +176,19 @@ namespace RaderAmedasDecoder
             bitsPerValue = (int)fs.ReadByte();
             if (bitsPerValue != 8) return;
             fs.Read(buf2, 0, 2);
-            maximumValueofData = SwapEndian.swap_endianInt16(buf2, 0);
+            maximumValueofData = (int)SwapEndian.swap_endianInt16(buf2, 0);
             fs.Read(buf2, 0, 2);            
-            maximumValeOfLevel = SwapEndian.swap_endianInt16(buf2, 0); // MVL
+            maximumValeOfLevel = (int)SwapEndian.swap_endianInt16(buf2, 0); // MVL
             decimalScaleFactor = (int)fs.ReadByte();
             scaleFactor = (float)Math.Pow(10, decimalScaleFactor);
 
             // Octet 16+2xMVL - 17+2xMVL
             // read representative value
-            float[] RData = new float[maximumValeOfLevel];
+            short[] RData = new short[maximumValeOfLevel];
             for (int k = 0; k <= maximumValeOfLevel - 1; k++)
             {
                 fs.Read(buf2, 0, 2);
-                RData[k] = (float)SwapEndian.swap_endianInt16(buf2, 0) / scaleFactor;
+                RData[k] = SwapEndian.swap_endianInt16(buf2, 0);
             }
 
 
@@ -217,7 +219,7 @@ namespace RaderAmedasDecoder
                 throw new GribException("Section7 Octet5");
             }
 
-            float[] rainData = new float[numberOfDataPoints];
+            rainData = new float[numberOfDataPoints];
             int n1, n2;
             // Octet 6-section7Length  data
             ///
@@ -251,14 +253,14 @@ namespace RaderAmedasDecoder
                     runLength = runLength + 1;
                     for (int n = 0; n < runLength; n++)
                     {
-                        rainData[ij + n] = RData[n1];
+                        rainData[ij + n] = (float)RData[n1] / scaleFactor;
                     }                    
                     ij = ij + runLength;
                     bufPosition = bufPosition + nn + 1;
                 }
                 else
                 {
-                    rainData[ij] = RData[n1];
+                    rainData[ij] = (float)RData[n1] / scaleFactor;
                     ij++;
 
                     bufPosition = bufPosition + 1;
@@ -272,7 +274,7 @@ namespace RaderAmedasDecoder
             fs.Read(buf4, 0, 4);
 
           
-
+            
 
 
 

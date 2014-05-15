@@ -61,54 +61,192 @@ namespace RaderAmedasDecoder
             
             ///
             /// ファイル名のリストを作成
-            ///
-            ArrayList filenameList = new ArrayList();
+            ///            
             FilePathFuctory fpf = new FilePathFuctory(grib2FolderPath);
 
             DateTime date = startDate;
             String gfilepath;
+
+            ///
+            /// 出力用データテーブル
+            ///
+            String pointMeshCode = "9999-99-99";
+            DataTable dt = new DataTable();
+            dt.Columns.Add("時刻", typeof(DateTime)); // 日付
+            dt.Columns.Add(pointMeshCode, typeof(float));
+            
+            ///
             while (date <= endDate)
             {                
                 gfilepath = fpf.getRaFilePath(date);
 
-                if (File.Exists(gfilepath))
-                {
-                    filenameList.Add(gfilepath);
-                }
-                else
+                if (!File.Exists(gfilepath))               
                 {
                     MessageBox.Show("ファイル" + gfilepath + "が存在しません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
+
+                DataRow dr = dt.NewRow();
+                dr["時刻"] = date;
+                dr[pointMeshCode] = 1.0;
+                dt.Rows.Add(dr);
+
                 date = date.AddMinutes(30);
+                
             }
 
             ///
             /// grib2ファイルの読み込み
             ///
- 
-            //float[] rainData = new float[filenameList.Count];
+             
+            /// バックグラウンドで処理
+            object[] args = new object[2];
+            args[0] = startDate;
+            args[1] = endDate;
 
-            foreach (String filepath in filenameList)
+            ButtonDecodeStart.Enabled = false;
+            buttonCancel.Enabled = true;
+            bw.RunWorkerAsync(args);  
+
+           // date = startDate;
+           // for(int i=0; i<100; i++)
+           //{
+           //    gfilepath = fpf.getRaFilePath(date);
+           //    using (FileStream fs = new FileStream(gfilepath, FileMode.Open, FileAccess.Read))
+           //    {
+
+           //        RAGrib2 grb = new RAGrib2(fs);
+           //    }
+               
+           //  //   toolStripStatusLabel2.Text = i.ToString() + "番目";
+           //  //   Application.DoEvents();
+           //     //System.Threading.Thread.Sleep(1000);
+           //}
+
+            ///
+            /// 書き込み
+            ///
+            String csvfilepath = "C:\\Users\\miyachi\\Desktop\\hoge.csv";
+           using ( StreamWriter sr = new StreamWriter(csvfilepath, false, Encoding.GetEncoding("Shift_JIS")))
            {
-                FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
 
-                RAGrib2 grb = new RAGrib2(fs);
-                toolStripStatusLabel1.Text = grb.maximumValeOfLevel.ToString();
+              int colCount = dt.Columns.Count;
+       int lastColIndex = colCount - 1;
 
-                fs.Dispose();
-           }
+    //ヘッダを書き込む
+ 
+        for (int i = 0; i < colCount; i++)
+        {
+            //ヘッダの取得
+            string field = dt.Columns[i].Caption;
+            //"で囲む
+            //field = EncloseDoubleQuotesIfNeed(field);
+            //フィールドを書き込む
+            sr.Write(field);
+            //カンマを書き込む
+            if (lastColIndex > i)
+            {
+                sr.Write(',');
+            }
+        
+        
+    }
+        //改行する
+        sr.Write("\r\n");
+        //レコードを書き込む
+        foreach (DataRow row in dt.Rows)
+        {
+            for (int i = 0; i < colCount; i++)
+            {
+                //フィールドの取得
+                string field = row[i].ToString();
+                //"で囲む
+               // field = EncloseDoubleQuotesIfNeed(field);
+                //フィールドを書き込む
+                sr.Write(field);
+                //カンマを書き込む
+                if (lastColIndex > i)
+                {
+                    sr.Write(',');
+                }
+            }
+            //改行する
+            sr.Write("\r\n");
+        }
+        }
 
             // 終了
-            //toolStripStatusLabel1.Text = "finish";
-                
+            toolStripStatusLabel1.Text = "finish";
+            
+            
 
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void bw_DoWork(object sender, DoWorkEventArgs e)
         {
+            object[] args = (object[])e.Argument;
+            DateTime startDate = (DateTime)args[0];
+            DateTime endDate = (DateTime)args[1];
 
+            
+            FilePathFuctory fpf = new FilePathFuctory(grib2FolderPath);
+
+            String gfilepath;
+            DateTime date;
+            int i = 0;
+            date = startDate;
+            while (date <= endDate)
+            {
+                gfilepath = fpf.getRaFilePath(date);
+                using (FileStream fs = new FileStream(gfilepath, FileMode.Open, FileAccess.Read))
+                {
+
+                    RAGrib2 grb = new RAGrib2(fs);
+                }
+                bw.ReportProgress(i, date);
+                //   toolStripStatusLabel2.Text = i.ToString() + "番目";
+                //   Application.DoEvents();
+                if (bw.CancellationPending)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+                //System.Threading.Thread.Sleep(5000);
+                date = date.AddMinutes(30);
+            }
         }
+
+        private void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            DateTime date = (DateTime)e.UserState;
+            toolStripStatusLabel2.Text = date.ToString("yyyy/MM/dd HH:mm") + "を処理中";
+        }
+
+        private void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            
+        if (e.Cancelled == true)
+        {
+            toolStripStatusLabel2.Text = "デコードを中止しました。";            
+        }
+        else
+        {
+            toolStripStatusLabel2.Text = "デコードを終了。";
+        }
+        ButtonDecodeStart.Enabled = true;
+        buttonCancel.Enabled = false;
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            bw.CancelAsync();
+            buttonCancel.Enabled = false;
+            toolStripStatusLabel2.Text = "キャンセル中...。";
+        }
+   
+        
+
 
     }
 }
